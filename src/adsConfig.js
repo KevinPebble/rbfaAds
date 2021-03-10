@@ -15,7 +15,7 @@ adsSiteConfig.adsConfig = {
 };
 adsSiteConfig.googleSizeMappingMatrix = {
     desktop : {
-        "ViewportTreshold" : [768, 0],
+        "ViewportTreshold" : [1440, 0],
         "leaderboard": [[728, 90]],
         "rectangle": [[300, 250]],
         "skyscraper": [[160, 600], [120, 600]],
