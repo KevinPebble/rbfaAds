@@ -16,10 +16,22 @@ function RBFAads($, googletag, adsSiteConfig) {
 };
 
 RBFAads.prototype.init = function(){
+    console.log("<------------------------ INIT LOADED --------------------------->");
     this.LoadGoogle();
     this.videoURL = this.GetVideoURL();
     return this;
 };
+
+RBFAads.prototype.isHidden = function(elem){
+    var bounding = elem.getBoundingClientRect();
+    if (typeof bounding.x !== "undefined" && typeof bounding.y !== "undefined"){
+        return (bounding.x === 0 && bounding.y ===0 && bounding.width === 0 && bounding.height ===0)
+    }else if (typeof bounding.left !== "undefined" && typeof bounding.top !== "undefined"){
+        return (bounding.top === 0 && bounding.left ===0 && bounding.width === 0 && bounding.height ===0)
+    }else{
+        return !( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
+    }
+ };
 
 RBFAads.prototype.buildAdsConfig = function buildAdsConfig(adsConfig) {
     var adPositions = {};
@@ -35,6 +47,9 @@ RBFAads.prototype.buildAdsConfig = function buildAdsConfig(adsConfig) {
         var Nodelist = Array.prototype.slice.call(NodelistSrc);
         if (Nodelist.length !== 0){
             for (x=0; x < Nodelist.length ;x++){
+                    if (this.isHidden(Nodelist[x])){
+                        continue;
+		        	}
                     //count the new position.
                     this.adCounter[formatName] = typeof this.adCounter[formatName] === "undefined" ? 1 : this.adCounter[formatName]+1;
                     //make the destination ID unique.
@@ -81,10 +96,10 @@ RBFAads.prototype.LoadGoogle = function() {
             // and users tend to scroll faster.
             mobileScaling: 2.0
         });
-         if (typeof that.adsSiteConfig.subpage !== "undefined"){
+         if (that.adsSiteConfig.subpage !== undefined && that.adsSiteConfig.subpage !== ""){
             googletag.pubads().setTargeting('Subpage', that.adsSiteConfig.subpage);
         };
-        if (typeof that.adsSiteConfig.tag !== "undefined"){
+        if (that.adsSiteConfig.tag !== undefined && that.adsSiteConfig.tag !== ""){
             googletag.pubads().setTargeting('tag', that.adsSiteConfig.tag);
         };
         googletag.enableServices();
@@ -97,8 +112,8 @@ RBFAads.prototype.GetVideoURL = function() {
     videoURL += this.adsSiteConfig.location;
     videoURL += "&description_url="+document.location.href;
     videoURL += "&cust_params=";
-    videoURL += typeof this.adsSiteConfig.subpage !== "undefined" ? "Subpage%3D"+this.adsSiteConfig.subpage.join("%2C") : "";
-    videoURL += typeof this.adsSiteConfig.tag !== "undefined" ? "%26tag%3D"+this.adsSiteConfig.tag.join("%2C") : "";
+    videoURL += this.adsSiteConfig.subpage !== undefined && this.adsSiteConfig.subpage !== "" ? "Subpage%3D"+this.adsSiteConfig.subpage.replace(/;/g, '%2C'): "";
+    videoURL += this.adsSiteConfig.tag !== undefined && this.adsSiteConfig.tag !== "" ? "%26tag%3D"+this.adsSiteConfig.tag.replace(/;/g, '%2C') : "";
     videoURL += "&tfcd=0&npa=0&sz=640x360&max_ad_duration=30000&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=&nofb=1&vad_type=linear";
     return videoURL;
 }

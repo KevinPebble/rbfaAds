@@ -5,8 +5,8 @@ RBFAads.prototype.reset = function reset() {
 
     if(typeof document.getElementById("rbfaConfig")!== "undefined" && document.getElementById("rbfaConfig") !== null ){
         this.adsSiteConfig.location = document.getElementById("rbfaConfig").dataset.location;
-        this.adsSiteConfig.subpage = document.getElementById("rbfaConfig").dataset.subpage.split(";") || undefined;
-        this.adsSiteConfig.tag = document.getElementById("rbfaConfig").dataset.tag.split(";") || undefined;
+        this.adsSiteConfig.subpage = document.getElementById("rbfaConfig").dataset.subpage || undefined;
+        this.adsSiteConfig.tag = document.getElementById("rbfaConfig").dataset.tag || undefined;
     }
     this.adPositions = this.buildAdsConfig(adsSiteConfig.adsConfig);
 

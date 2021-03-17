@@ -1,7 +1,7 @@
 var adsSiteConfig = adsSiteConfig || {};
 adsSiteConfig.location = document.getElementById("rbfaConfig").dataset.location;
-adsSiteConfig.subpage = document.getElementById("rbfaConfig").dataset.subpage.split(";") || undefined;
-adsSiteConfig.tag = document.getElementById("rbfaConfig").dataset.tag.split(";") || undefined;
+adsSiteConfig.subpage = document.getElementById("rbfaConfig").dataset.subpage || undefined;
+adsSiteConfig.tag = document.getElementById("rbfaConfig").dataset.tag || undefined;
 adsSiteConfig.adsConfig = {
     leaderboard: {
         display : true
