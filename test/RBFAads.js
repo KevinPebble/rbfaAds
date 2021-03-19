@@ -45,7 +45,6 @@ function RBFAads($, googletag, adsSiteConfig) {
 };
 
 RBFAads.prototype.init = function(){
-    console.log("<------------------------ INIT LOADED --------------------------->");
     this.LoadGoogle();
     this.videoURL = this.GetVideoURL();
     return this;
@@ -90,11 +89,7 @@ RBFAads.prototype.buildAdsConfig = function buildAdsConfig(adsConfig) {
                     adPositions[Nodelist[x].id].container = Nodelist[x];
                     adPositions[Nodelist[x].id].formatName = formatName;
             }
-        }else{
-            delete adsConfig[formatName];
-            continue;
         }
-
     }
 
     return adPositions;
