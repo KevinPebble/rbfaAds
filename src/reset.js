@@ -1,4 +1,11 @@
 RBFAads.prototype.reset = function reset() {
+    
+    for (position in this.adPositions){
+        if(document.getElementById(position) !== null){
+            document.getElementById(position).dataset.prepared = false;
+            document.getElementById(position).id = "";
+        }
+    }
 
     googletag.destroySlots();
     googletag.pubads().clearTargeting();
@@ -8,7 +15,7 @@ RBFAads.prototype.reset = function reset() {
         this.adsSiteConfig.subpage = document.getElementById("rbfaConfig").dataset.subpage || undefined;
         this.adsSiteConfig.tag = document.getElementById("rbfaConfig").dataset.tag || undefined;
     }
-    this.adPositions = this.buildAdsConfig(adsSiteConfig.adsConfig);
+    this.adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
 
     //Set everything in motion to refresh everything
     this.init();

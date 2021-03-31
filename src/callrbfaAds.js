@@ -1,5 +1,6 @@
 var googletag = window.googletag || {cmd: []};
 
 window.addEventListener('CookiebotOnConsentReady', function (e) {
-    window.rbfaAds = new RBFAads($, googletag, adsSiteConfig).init();
+    console.log("Consent received! fire the admanager!");
+    window.rbfaAds = new RBFAads($, googletag).init();
     }, false);

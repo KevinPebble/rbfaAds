@@ -1,4 +1,4 @@
-function RBFAads($, googletag, adsSiteConfig) {
+function RBFAads($, googletag) {
 
     'use strict';
 
@@ -10,13 +10,42 @@ function RBFAads($, googletag, adsSiteConfig) {
     if (location.href.match(/(\?|&)noads($|&|=)/)) {
         return;
     }
-
-    this.adsSiteConfig = adsSiteConfig;
-    this.adPositions = this.buildAdsConfig(adsSiteConfig.adsConfig);
+    this.adsSiteConfig = {};
+    this.adsSiteConfig.location = document.getElementById("rbfaConfig").dataset.location;
+    this.adsSiteConfig.subpage = document.getElementById("rbfaConfig").dataset.subpage || undefined;
+    this.adsSiteConfig.tag = document.getElementById("rbfaConfig").dataset.tag || undefined;
+    this.adsSiteConfig.adsConfig = {
+        leaderboard: {
+            display : true
+        },
+        rectangle: {
+            display : true
+        },
+        skyscraper: {
+            display : true
+        },
+    };
+    this.adsSiteConfig.breakpoint = 1440;
+    this.adsSiteConfig.googleSizeMappingMatrix = {
+        desktop : {
+            "ViewportTreshold" : [this.adsSiteConfig.breakpoint, 0],
+            "leaderboard": [[728, 90]],
+            "rectangle": [[300, 250]],
+            "skyscraper": [[160, 600], [120, 600]],
+        },
+        mobile : {
+            "ViewportTreshold" : [0, 0],
+            "leaderboard": [[320, 50], [300, 50]],
+            "rectangle": [[300, 250]],
+            "skyscraper": [],
+        }
+    };
+    this.deviceMode = window.innerWidth > this.adsSiteConfig.breakpoint ? "desktop" : "mobile";
+    this.adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
 };
 
 RBFAads.prototype.init = function(){
-    this.LoadGoogle();
+    this.LoadGoogle(this.adPositions);
     this.videoURL = this.GetVideoURL();
     return this;
 };
@@ -34,7 +63,7 @@ RBFAads.prototype.isHidden = function(elem){
 
 RBFAads.prototype.buildAdsConfig = function buildAdsConfig(adsConfig) {
     var adPositions = {};
-    this.adCounter = {};
+    this.adCounter = this.adCounter || {};
     // Extend adsConfig with default values
     for (var formatName in adsConfig) {
 
@@ -46,13 +75,14 @@ RBFAads.prototype.buildAdsConfig = function buildAdsConfig(adsConfig) {
         var Nodelist = Array.prototype.slice.call(NodelistSrc);
         if (Nodelist.length !== 0){
             for (x=0; x < Nodelist.length ;x++){
-                    if (this.isHidden(Nodelist[x])){
+                    if (this.isHidden(Nodelist[x]) || (typeof Nodelist[x].dataset.prepared !== "undefined" && Nodelist[x].dataset.prepared === "true")){
                         continue;
 		        	}
                     //count the new position.
                     this.adCounter[formatName] = typeof this.adCounter[formatName] === "undefined" ? 1 : this.adCounter[formatName]+1;
                     //make the destination ID unique.
-                    Nodelist[x].id = formatName+this.adCounter[formatName]
+                    Nodelist[x].id = formatName+this.adCounter[formatName];
+                    Nodelist[x].dataset.prepared = true;
                     // save destination and ID in adpositions
                     adPositions[Nodelist[x].id] = {};
                     adPositions[Nodelist[x].id].positionName = Nodelist[x].id;
@@ -67,16 +97,16 @@ RBFAads.prototype.buildAdsConfig = function buildAdsConfig(adsConfig) {
 
 };
 
-RBFAads.prototype.LoadGoogle = function() {
+RBFAads.prototype.LoadGoogle = function(adPositions) {
     this.GoogleAds = {};
     var that = this;
-    googletag.cmd.push(function() {
-        for (position in that.adPositions){
+    googletag.cmd.push(function(adPositions) {
+        for (position in adPositions){
             that.GoogleAds[position] = googletag.defineSlot("/22273444627/"+that.adsSiteConfig.location, [[999, 999]], position)
                 .addService(googletag.pubads())
             var mapping = googletag.sizeMapping()
-                .addSize(that.adsSiteConfig.googleSizeMappingMatrix.desktop.ViewportTreshold, that.adsSiteConfig.googleSizeMappingMatrix.desktop[that.adPositions[position].formatName])
-                .addSize(that.adsSiteConfig.googleSizeMappingMatrix.mobile.ViewportTreshold, that.adsSiteConfig.googleSizeMappingMatrix.mobile[that.adPositions[position].formatName])
+                .addSize(that.adsSiteConfig.googleSizeMappingMatrix.desktop.ViewportTreshold, that.adsSiteConfig.googleSizeMappingMatrix.desktop[adPositions[position].formatName])
+                .addSize(that.adsSiteConfig.googleSizeMappingMatrix.mobile.ViewportTreshold, that.adsSiteConfig.googleSizeMappingMatrix.mobile[adPositions[position].formatName])
                 .build();
             that.GoogleAds[position].defineSizeMapping(mapping);
         }
@@ -99,7 +129,7 @@ RBFAads.prototype.LoadGoogle = function() {
         };
         googletag.enableServices();
         googletag.display(Object.keys(that.GoogleAds)[0]);
-    });
+    }(adPositions));
 };
 
 RBFAads.prototype.GetVideoURL = function() {
@@ -111,4 +141,11 @@ RBFAads.prototype.GetVideoURL = function() {
     videoURL += this.adsSiteConfig.tag !== undefined && this.adsSiteConfig.tag !== "" ? "%26tag%3D"+this.adsSiteConfig.tag.replace(/;/g, '%2C') : "";
     videoURL += "&tfcd=0&npa=0&sz=640x360&max_ad_duration=30000&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=&nofb=1&vad_type=linear";
     return videoURL;
-}
+};
+
+RBFAads.prototype.loadMoreAds = function() {
+    var adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
+    console.log(adPositions);
+    Object.assign(this.adPositions, adPositions);
+    this.LoadGoogle(adPositions);
+};

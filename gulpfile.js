@@ -6,11 +6,10 @@ const concat = require ("gulp-concat");
 
 gulp.task("default", function () {
     return gulp.src([
-        "src/adsConfig.js",
         "src/rbfaAds.js",
         "src/reset.js",
-        "src/callrbfaAds.js"
-        
+        "src/callrbfaAds.js",
+        "src/resize.js"
     ])
     .pipe(concat("RBFAads.js"))
     .pipe(gulp.dest("dist"))
