@@ -3,6 +3,7 @@ RBFAads.prototype.reset = function reset() {
     for (position in this.adPositions){
         if(document.getElementById(position) !== null){
             document.getElementById(position).dataset.prepared = false;
+            document.getElementById(position).removeAttribute("style");
             document.getElementById(position).id = "";
         }
     }

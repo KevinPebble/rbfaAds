@@ -47,6 +47,7 @@ function RBFAads($, googletag) {
 RBFAads.prototype.init = function(){
     this.LoadGoogle(this.adPositions);
     this.videoURL = this.GetVideoURL();
+    this.resizeEvent();
     return this;
 };
 
@@ -129,6 +130,7 @@ RBFAads.prototype.LoadGoogle = function(adPositions) {
         };
         googletag.enableServices();
         googletag.display(Object.keys(that.GoogleAds)[0]);
+
     }(adPositions));
 };
 
@@ -145,7 +147,7 @@ RBFAads.prototype.GetVideoURL = function() {
 
 RBFAads.prototype.loadMoreAds = function() {
     var adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
-    console.log(adPositions);
+    //console.log(adPositions);
     Object.assign(this.adPositions, adPositions);
     this.LoadGoogle(adPositions);
 };
@@ -154,6 +156,7 @@ RBFAads.prototype.reset = function reset() {
     for (position in this.adPositions){
         if(document.getElementById(position) !== null){
             document.getElementById(position).dataset.prepared = false;
+            document.getElementById(position).removeAttribute("style");
             document.getElementById(position).id = "";
         }
     }
@@ -171,29 +174,49 @@ RBFAads.prototype.reset = function reset() {
     //Set everything in motion to refresh everything
     this.init();
 };
-var googletag = window.googletag || {cmd: []};
-
-window.addEventListener('CookiebotOnConsentReady', function (e) {
-    console.log("Consent received! fire the admanager!");
-    window.rbfaAds = new RBFAads($, googletag).init();
-    }, false);
-function debounce(func) {
-    let timer;
-    return function (event) {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(func, 500, event);
-    };
-  }
-  window.addEventListener("resize", debounce(function (e) {
-    console.log("end of resizing");
-    console.log(e);
-    var newDeviceMode = window.innerWidth > rbfaAds.adsSiteConfig.breakpoint ? "desktop" : "mobile";
-    if (newDeviceMode !== rbfaAds.deviceMode){
-        console.log("performing reset");
-        rbfaAds.deviceMode = newDeviceMode;
-        rbfaAds.reset();
-    }else{
-        console.log("No need to reset");
+RBFAads.prototype.resizeEvent = function(){
+    function debounce(func) {
+      let timer;
+      return function (event) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(func, 500, event);
+      };
     }
-    // Reset ads
-  }));
+    window.addEventListener("resize", debounce(function (e) {
+      var newDeviceMode = window.innerWidth > rbfaAds.adsSiteConfig.breakpoint ? "desktop" : "mobile";
+      if (newDeviceMode !== rbfaAds.deviceMode){
+          rbfaAds.deviceMode = newDeviceMode;
+          rbfaAds.reset();
+      }
+    }));
+};
+var googletag = window.googletag || {cmd: []};
+var InitAdserver = function(__tcfapi){
+  __tcfapi('addEventListener', 2, function(tcData, success){
+    if(success && (tcData.eventStatus === 'tcloaded' || tcData.eventStatus === 'useractioncomplete') ) {
+        window.rbfaAds = new RBFAads($, googletag).init();
+        // remove the ourself to not get called more than once
+        __tcfapi('removeEventListener', 2, (success) => {}, tcData.listenerId);
+
+    }       
+  });
+}
+ /*var waitForConsent = function () {
+  if(typeof __tcfapi !== "undefined"){
+    InitAdserver(__tcfapi);
+  }
+  else{
+    setTimeout(waitForConsent, 5);
+  };
+};
+waitForConsent(); */
+
+if(typeof __tcfapi !== "undefined"){
+  InitAdserver(__tcfapi);
+}else{
+  setTimeout(function(){
+    if(typeof __tcfapi !== "undefined"){
+      InitAdserver(__tcfapi);
+    }
+  }, 1000);
+}

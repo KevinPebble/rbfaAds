@@ -47,6 +47,7 @@ function RBFAads($, googletag) {
 RBFAads.prototype.init = function(){
     this.LoadGoogle(this.adPositions);
     this.videoURL = this.GetVideoURL();
+    this.resizeEvent();
     return this;
 };
 
@@ -129,6 +130,7 @@ RBFAads.prototype.LoadGoogle = function(adPositions) {
         };
         googletag.enableServices();
         googletag.display(Object.keys(that.GoogleAds)[0]);
+
     }(adPositions));
 };
 
@@ -145,7 +147,7 @@ RBFAads.prototype.GetVideoURL = function() {
 
 RBFAads.prototype.loadMoreAds = function() {
     var adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
-    console.log(adPositions);
+    //console.log(adPositions);
     Object.assign(this.adPositions, adPositions);
     this.LoadGoogle(adPositions);
 };

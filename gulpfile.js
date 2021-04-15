@@ -8,8 +8,8 @@ gulp.task("default", function () {
     return gulp.src([
         "src/rbfaAds.js",
         "src/reset.js",
-        "src/callrbfaAds.js",
-        "src/resize.js"
+        "src/resize.js",
+        "src/callrbfaAds.js"
     ])
     .pipe(concat("RBFAads.js"))
     .pipe(gulp.dest("dist"))
