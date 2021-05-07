@@ -1,4 +1,4 @@
-function RBFAads($, googletag) {
+function RBFAads($, googletag, consentstring) {
 
     'use strict';
 
@@ -41,6 +41,7 @@ function RBFAads($, googletag) {
         }
     };
     this.deviceMode = window.innerWidth > this.adsSiteConfig.breakpoint ? "desktop" : "mobile";
+    this.consentstring = consentstring;
     this.adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
 };
 
@@ -141,8 +142,11 @@ RBFAads.prototype.GetVideoURL = function() {
     videoURL += "&cust_params=";
     videoURL += this.adsSiteConfig.subpage !== undefined && this.adsSiteConfig.subpage !== "" ? "Subpage%3D"+this.adsSiteConfig.subpage.replace(/;/g, '%2C'): "";
     videoURL += this.adsSiteConfig.tag !== undefined && this.adsSiteConfig.tag !== "" ? "%26tag%3D"+this.adsSiteConfig.tag.replace(/;/g, '%2C') : "";
-    videoURL += "&tfcd=0&npa=0&sz=640x360&max_ad_duration=30000&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=&nofb=1&vad_type=linear";
-    return videoURL;
+    videoURL += "&tfcd=0&npa=0&sz=640x360&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="+Date.now()+"&nofb=1&vad_type=linear&gdpr=1&gdpr_consent="+this.consentstring;
+    var prerollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=preroll";
+    var midrollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=midroll";
+    var postrollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=midroll";
+    return {preroll: prerollURL ,midroll : midrollURL,postroll:postrollURL};
 };
 
 RBFAads.prototype.loadMoreAds = function() {
