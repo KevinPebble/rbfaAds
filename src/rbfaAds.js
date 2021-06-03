@@ -25,7 +25,7 @@ function RBFAads($, googletag, consentstring) {
             display : true
         },
     };
-    this.adsSiteConfig.breakpoint = 1440;
+    this.adsSiteConfig.breakpoint = 1600;
     this.adsSiteConfig.googleSizeMappingMatrix = {
         desktop : {
             "ViewportTreshold" : [this.adsSiteConfig.breakpoint, 0],
