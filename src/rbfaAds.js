@@ -145,7 +145,7 @@ RBFAads.prototype.GetVideoURL = function() {
     videoURL += "&tfcd=0&npa=0&sz=640x360&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="+Date.now()+"&nofb=1&vad_type=linear&gdpr=1&gdpr_consent="+this.consentstring;
     var prerollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=preroll";
     var midrollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=midroll";
-    var postrollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=midroll";
+    var postrollURL = videoURL + "&max_ad_duration=20000&pmxd=20000&pmad=2&vpos=postroll";
     return {preroll: prerollURL ,midroll : midrollURL,postroll:postrollURL};
 };
 
