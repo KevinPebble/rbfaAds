@@ -46,10 +46,31 @@ function RBFAads($, googletag, consentstring) {
 };
 
 RBFAads.prototype.init = function(){
-    this.LoadGoogle(this.adPositions);
-    this.videoURL = this.GetVideoURL();
-    this.resizeEvent();
-    return this;
+    try {
+        this.videoURL = this.GetVideoURL();
+        function ensureGoogleisReady(timeout) {
+            var start = Date.now();
+            function waitForGoogle(resolve, reject) {
+                if (window.googletag.apiReady)
+                    resolve();
+                else if (timeout && (Date.now() - start) >= timeout)
+                    reject(new Error("RBFA ADS ERROR: Google Could not load in Time."));
+                else
+                    setTimeout(waitForGoogle.bind(this, resolve, reject), 30);
+            }
+            return new Promise(waitForGoogle);
+        }
+        ensureGoogleisReady(1000).then(function(){
+            rbfaAds.LoadGoogle(rbfaAds.adPositions);
+            rbfaAds.resizeEvent();
+        }).catch(function (e) {
+            console.log('RBFA ADS ERROR: Google Could not load in Time.');
+        });
+        return this;
+    } catch (error) {
+        console.log("RBFA ADS ERROR: "+error)
+    }
+
 };
 
 RBFAads.prototype.isHidden = function(elem){
@@ -114,16 +135,18 @@ RBFAads.prototype.LoadGoogle = function(adPositions) {
         }
         googletag.pubads().enableSingleRequest();
         googletag.pubads().collapseEmptyDivs();
-        googletag.pubads().enableLazyLoad({
-            // Fetch slots within 5 viewports.
-            fetchMarginPercent: 500,
-            // Render slots within 2 viewports.
-            renderMarginPercent: 100,
-            // Double the above values on mobile, where viewports are smaller
-            // and users tend to scroll faster.
-            mobileScaling: 2.0
-        });
-         if (that.adsSiteConfig.subpage !== undefined && that.adsSiteConfig.subpage !== ""){
+        if (typeof googletag.pubads().enableLazyLoad === "function"){
+            googletag.pubads().enableLazyLoad({
+                // Fetch slots within 5 viewports.
+                fetchMarginPercent: 500,
+                // Render slots within 1 viewports.
+                renderMarginPercent: 100,
+                // Double the above values on mobile, where viewports are smaller
+                // and users tend to scroll faster.
+                mobileScaling: 2.0
+            });
+        }
+        if (that.adsSiteConfig.subpage !== undefined && that.adsSiteConfig.subpage !== ""){
             googletag.pubads().setTargeting('Subpage', that.adsSiteConfig.subpage);
         };
         if (that.adsSiteConfig.tag !== undefined && that.adsSiteConfig.tag !== ""){
@@ -151,7 +174,6 @@ RBFAads.prototype.GetVideoURL = function() {
 
 RBFAads.prototype.loadMoreAds = function() {
     var adPositions = this.buildAdsConfig(this.adsSiteConfig.adsConfig);
-    //console.log(adPositions);
     Object.assign(this.adPositions, adPositions);
     this.LoadGoogle(adPositions);
 };

@@ -9,16 +9,6 @@ var InitAdserver = function(__tcfapi){
     }       
   });
 }
- /*var waitForConsent = function () {
-  if(typeof __tcfapi !== "undefined"){
-    InitAdserver(__tcfapi);
-  }
-  else{
-    setTimeout(waitForConsent, 5);
-  };
-};
-waitForConsent(); */
-
 if(typeof __tcfapi !== "undefined"){
   InitAdserver(__tcfapi);
 }else{
